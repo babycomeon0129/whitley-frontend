@@ -15,11 +15,12 @@
         display: flex;
         align-items: center;
     }
-    .flex-justify-center {
-        display: flex;
-        justify-content: center;
-        position: relative;
-    }
+}
+
+.flex-justify-center {
+    display: flex;
+    justify-content: center;
+    position: relative;
 }
 
 .flex-container {

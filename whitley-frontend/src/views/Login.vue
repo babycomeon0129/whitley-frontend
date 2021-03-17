@@ -4,12 +4,14 @@
       幸安國小 <br />
       <span>體溫查詢系統登入</span>
     </h1>
-    <div class="loginform">
-      <h2>登入</h2>
-      <p>請輸入您的帳戶</p>
-      <input type="text" placeholder="帳號" v-model="username">
-      <input type="text" placeholder="密碼" v-model="password">
-      <button type="button" class="btn btn-login">登入</button>
+    <div class="flex-justify-center">
+      <div class="loginform">
+        <h2>登入</h2>
+        <p>請輸入您的帳戶</p>
+        <el-input v-model="username" placeholder="帳號"></el-input>
+        <el-input v-model="password" placeholder="密碼"></el-input>
+        <el-button type="primary">登入</el-button>
+      </div>
     </div>
   </div>
 </template>
@@ -47,7 +49,7 @@ h1 {
   color: $default-color;
   letter-spacing: 20px;
   line-height: 70%;
-  margin-top: 2em;
+  margin: 2em 0 0.5em 0;
   span {
     letter-spacing: 0;
     font-size: 25px;
@@ -60,23 +62,18 @@ h1 {
   border-radius: 5px;
   padding: 2em;
   color: $logintext-color;
+  width: 50%;
+  @media (max-width: 760px) {
+        width: 90%;
+    }
   h2 {
     color: #000;
   }
   p {
     margin: 0.5em 0;
   }
-}
-
-input {
-  margin-bottom: 1em;
-}
-
-.btn-login {
-  background: $default-color;
-  color: #fff;
-  &:hover {
-    background:#1b8eb7;
+  ::v-deep .el-input__inner {
+    margin-bottom: 1em;
   }
 }
 </style>
