@@ -1,0 +1,64 @@
+/** 自定專案用style */
+@import "./vars.scss";
+
+
+.area {
+    padding: 3em 0;
+}
+
+.event-area {
+    margin-top: -3em;
+    background-image: url('../assets/images/event-bg1.png'),linear-gradient(to bottom, #fff 5%, #E94709 5%);
+    background-repeat: no-repeat, no-repeat;
+    background-position: center top;
+    background-size: contain;
+    min-height: 700px;
+    @media (max-width: 1680px) {
+        margin-top: -2em;
+    }
+}
+
+.border-radius-linear-gradient {
+    position        : relative;
+    border          : 1px solid transparent;
+    background-color: transparent;
+    border-radius   : 8px;
+    background-clip : padding-box;
+    z-index         : 10;
+
+    &::after {
+        content                : "";
+        display                : block;
+        position               : absolute;
+        top                    : -2px;
+        right                  : -2px;
+        bottom                 : -2px;
+        left                   : -2px;
+        border-top-right-radius: 8px;
+        border-radius          : 8px;
+        background             : linear-gradient(to right, #BAA050 0%, #F0D983 46.35%, #B79E4F 100%);
+        z-index                : -1;
+    }
+}
+
+.border-radius-linear-gradient-content {
+    background-color: #fff;
+    border-radius   : 6px;
+    border          : 0;
+}
+
+.btn {
+    width: 100%;
+    border-radius: 8px;
+    -webkit-box-shadow: 0 6px 9px rgb(0 0 0 / 25%);
+    box-shadow: 0 6px 9px rgb(0 0 0 / 25%);
+    font-size: 24px;
+    font-weight: bold;
+    color: #C39451;
+    background: #fff;
+    &.btn-gold {
+        background: linear-gradient(to bottom, #E4A860 0%, #E4A860 .1%, #A99248 66.67%, #E6C667 100%);
+        color: #fff;
+    }
+}
+

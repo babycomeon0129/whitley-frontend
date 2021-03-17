@@ -1,0 +1,36 @@
+.flexfrm {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    .flex-item {
+        flex: 1;
+    }
+    .flex-item-1 {
+        flex: 0 0 auto;
+    }
+    .flex-item-aside {
+        flex: 0 0 $aside-width;
+    }
+    .flex-center {
+        display: flex;
+        align-items: center;
+    }
+    .flex-justify-center {
+        display: flex;
+        justify-content: center;
+        position: relative;
+    }
+}
+
+.flex-container {
+    flex-direction: column;
+}
+
+.row {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    margin-right: -15px;
+    margin-left: -15px;
+}

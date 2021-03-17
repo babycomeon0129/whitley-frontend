@@ -1,0 +1,24 @@
+$container-width: 1200px;
+$base-spacing-1: 12px;
+$base-spacing-2: 24px;
+$padding-wrap: 1.5em;
+
+$header-height: 48px;
+$main-height: calc(100vh - 48px);
+$aside-width: 160px;
+$aside-out-width: $aside-width + $base-spacing-2;
+$aside-bgcolor: #fff;
+
+$default-color: #DC0816;
+$default-txt: #FFF100;
+$default-txt-dark: rgba(0,0,0,0.87);
+
+$tooltip-size: 10px;
+$tooltip-color: rgba(0,0,0,0.6);
+
+$table-bgcolor: #EEEEEE;
+$table-highlight: #F8F9Fa;
+$table-font-size: 13px;
+
+$border-solid-1: 1px solid rgba(0, 0, 0, 0.12);
+$box-shadow-1: 0 3px 4px 0 rgba(0, 0, 0, 0.2), 0 3px 3px -2px rgba(0, 0, 0, 0.14), 0 1px 8px 0 rgba(0, 0, 0, 0.12);

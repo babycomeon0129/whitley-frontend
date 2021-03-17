@@ -1,0 +1,27 @@
+table {
+    width: 100%;
+    border-top: $border-solid-1;
+    border-bottom: $border-solid-1;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: $table-font-size;
+    thead {
+        padding: $base-spacing-1 0;
+        width: 100%;
+        vertical-align: baseline;    
+        background: $table-bgcolor ;
+    }
+    tr {        
+        &:hover {
+            background: $table-highlight;
+        }
+    }
+    th {        
+        padding: 0 $base-spacing-1;
+    }
+    td {
+        padding: $base-spacing-1;
+        vertical-align: top;
+        border-top: $border-solid-1;
+    }
+}
