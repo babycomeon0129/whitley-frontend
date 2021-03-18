@@ -3,6 +3,7 @@
     <div class="header">
       <div class="container">
         <h1>幸安國小 體溫紀錄表</h1>
+        <el-button type="info" icon="el-icon-s-custom" plain @click="logOut">用戶登出</el-button>
       </div>
     </div>
     <!-- 查詢區 -->
@@ -11,7 +12,7 @@
         <div class="row">
           <div class="col-6 flexfrm flex-container">
             <p>查詢項目</p>
-            <el-select v-model="demand" placeholder="請選擇">
+            <el-select v-model="filterData.SearchModel.SearchType" placeholder="請選擇">
               <el-option
                 v-for="(item, index) in demandSelect"
                 :key="index"
@@ -24,7 +25,7 @@
           <div class="col-6 flexfrm flex-container">
             <p>查詢內容</p>
             <el-input
-              v-model="demandContent"
+              v-model="filterData.SearchModel.SearchValue"
               placeholder="請輸入查詢內容"
             ></el-input>
           </div>
@@ -46,7 +47,8 @@
             <p>體溫</p>
             <el-radio v-model="temperature" label="1">不限制</el-radio>
             <el-radio v-model="temperature" label="2">異常</el-radio>
-            <el-button type="primary">送出</el-button>
+            <el-button type="primary" @click="sendData">送出查詢</el-button>
+            <el-button type="success">匯出資料</el-button>
           </div>
         </div>
       </div>
@@ -54,22 +56,26 @@
     <!-- 秀資料區 -->
     <div class="datashow">
       <div class="container">
-        <el-table
-        :data="tableData"
-        style="width: 100%"
-        :default-sort="{ prop: 'date', order: 'descending' }"
-        >
-          <el-table-column prop="date" label="日期 & 時間" sortable>
-          </el-table-column>
-          <el-table-column prop="name" label="姓名">
-          </el-table-column>
-          <el-table-column prop="address" label="ID">
-          </el-table-column>
-          <el-table-column prop="address" label="卡號">
-          </el-table-column>
-          <el-table-column prop="address" label="體溫紀錄"  sortable>
-          </el-table-column>
-        </el-table>
+        <table>
+            <thead>
+                <tr>
+                    <th>日期 & 時間 <i class="el-icon-caret-bottom"></i></th>
+                    <th>姓名</th>
+                    <th>ID</th>
+                    <th>卡號</th>
+                    <th>體溫紀錄°C <i class="el-icon-caret-bottom"></i></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>The table body</td>
+                    <td>with two columns</td>
+                    <td>with two columns</td>
+                    <td>with two columns</td>
+                    <td>with two columns</td>
+                </tr>
+            </tbody>
+        </table>
       </div>
     </div>
     <!-- 分頁 -->
@@ -87,7 +93,7 @@
 
 <script>
 // @ is an alias to /src
-import { reactive, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 
 export default {
   name: 'Home',
@@ -96,25 +102,21 @@ export default {
     const demandSelect = reactive([
       {
         label: '姓名',
-        value: 'name'
-      },
-      {
-        label: '電話',
-        value: 'tel'
+        value: 1
       },
       {
         label: 'ID',
-        value: 'id'
+        value: 2
       },
       {
         label: '卡號',
-        value: 'cardNumber'
+        value: 3
       }
     ])
-    /** 查詢項目 */
-    const demand = ref('')
-    /** 查詢內容 */
-    const demandContent = ref('')
+    /** 可登入帳號 */
+    const okAccount = reactive(['xingan.demo01', 'xingan.demo02', 'xingan.demo03'])
+    /** 確認登入(帳號) */
+    const checkAccount = ref('')
     /** 日期 */
     const dateRange = ref('')
     /** 體溫 */
@@ -123,25 +125,55 @@ export default {
     const getData = reactive('')
     /** 資料總筆數 */
     const dataTatal = ref(50)
+    /** 篩選資料條件 */
+    const filterData = reactive({
+      Model_BasePage: {
+        Model_Page: 1,
+        OrderString: 'name'
+      },
+      SearchModel: {
+        SearchType: 1,
+        SearchValue: '',
+        StartDate: Date,
+        EndDate: Date,
+        TempType: computed(() => parseInt(temperature.value, 10))
+      }
+    })
 
     return {
+      okAccount,
+      checkAccount,
+      filterData,
       demandSelect,
-      demand,
-      demandContent,
       dateRange,
       temperature,
       getData,
       dataTatal
     }
   },
+  created () {
+    this.checkLogin()
+  },
   methods: {
     checkPage (page) {
       console.log(page)
-    }
-  },
-  computed: {
-    filterItem () {
-      return 1231
+      this.filterData.Model_BasePage.Model_Page = page
+    },
+    /** 資料篩選送出 */
+    sendData () {
+      console.log(this.filterData, parseInt(this.temperature, 10), this.filterData.SearchModel.TempType)
+    },
+    /** 確認登入 */
+    checkLogin () {
+      this.checkAccount = sessionStorage.getItem('Account')
+      if (this.okAccount.findIndex(account => account === this.checkAccount) === -1) {
+        this.$router.push('/login')
+      }
+    },
+    /** 登出 */
+    logOut () {
+      sessionStorage.clear()
+      this.$router.push('/login')
     }
   }
 }
@@ -155,9 +187,16 @@ export default {
 .header {
   padding: 1em 0;
   border-bottom: 1px solid #c9ced2;
+  .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
   h1 {
     margin: 0;
     font-size: 20px;
+    font-weight: bold;
+    display: inline-block;
   }
 }
 
@@ -181,6 +220,20 @@ label {
 
 .datashow {
   padding: 1em 0;
+  table {
+    text-align: center;
+    font-size:  14px;
+    th {
+      padding: 1em 0;
+    }
+  }
+  i {
+    cursor: pointer;
+    transition: .3s;
+    &:hover {
+      color: #409EFF;
+    }
+  }
 }
 
 .pagination {

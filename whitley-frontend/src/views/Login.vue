@@ -8,9 +8,9 @@
       <div class="loginform">
         <h2>登入</h2>
         <p>請輸入您的帳戶</p>
-        <el-input v-model="username" placeholder="帳號"></el-input>
-        <el-input v-model="password" placeholder="密碼"></el-input>
-        <el-button type="primary">登入</el-button>
+        <el-input v-model="account" placeholder="帳號"></el-input>
+        <el-input v-model="password" placeholder="密碼" type="password"></el-input>
+        <el-button type="primary" @click="sendData">登入</el-button>
       </div>
     </div>
   </div>
@@ -19,16 +19,57 @@
 <script>
 // @ is an alias to /src
 import { ref } from 'vue'
+import { ElMessage, ElLoading } from 'element-plus'
 
 export default {
   name: 'Login',
   setup () {
-    const username = ref('')
+    const account = ref('')
     const password = ref('')
 
     return {
-      username,
+      account,
       password
+    }
+  },
+  methods: {
+    sendData () {
+      if (this.account === '' || this.password === '') {
+        ElMessage.error('帳號或密碼不可為空')
+      } else {
+        // 開啟loading遮罩
+        ElLoading.service({ fullscreen: true })
+        const userData = {
+          Account: this.account,
+          Password: this.password
+        }
+        fetch('http://localhost:52150/Whitley/Login', {
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(userData),
+          method: 'POST'
+        }).then(res => res.json())
+          .then(data => {
+            ElLoading.service().close()
+            switch (data.Rtn_State) {
+              case '1':
+                sessionStorage.setItem('Account', this.account)
+                // 關閉loading遮罩
+                this.$router.push('/')
+                break
+              default:
+                this.account = ''
+                this.password = ''
+                ElMessage.error(data.Rtn_Message)
+                break
+            }
+          })
+          .catch(error => {
+            ElLoading.service().close()
+            console.error('Error:', error)
+          })
+      }
     }
   }
 }
