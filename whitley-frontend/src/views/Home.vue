@@ -12,12 +12,13 @@
         <div class="row">
           <div class="col-6 flexfrm flex-container">
             <p>查詢項目</p>
-            <el-select v-model="filterData.SearchModel.SearchType" placeholder="請選擇">
+            <el-select v-model="filterData.SearchModel.SearchType" placeholder="請選擇" class="sel">
               <el-option
                 v-for="(item, index) in demandSelect"
                 :key="index"
                 :label="item.label"
                 :value="item.value"
+                :hidden="item.value === 0"
               >
               </el-option>
             </el-select>
@@ -45,10 +46,15 @@
           </div>
           <div class="col-6">
             <p>體溫</p>
-            <el-radio v-model="temperature" label="1">不限制</el-radio>
-            <el-radio v-model="temperature" label="2">異常</el-radio>
-            <el-button type="primary" @click="sendData">送出查詢</el-button>
-            <el-button type="success">匯出資料</el-button>
+            <div class="flexfrm temperaturearea">
+              <div>
+                <el-radio v-model="temperature" label="1">不限制</el-radio>
+                <el-radio v-model="temperature" label="2">異常</el-radio>
+             </div>
+              <div>
+                <el-button type="primary" @click="sendData">送出查詢</el-button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -56,6 +62,7 @@
     <!-- 秀資料區 -->
     <div class="datashow">
       <div class="container">
+        <p>共{{dataTatal}}筆資料</p>
         <table>
             <thead>
                 <tr>
@@ -88,6 +95,19 @@
         </el-pagination>
       </div>
     </div>
+    <div class="btnarea">
+          <el-popover
+            placement="top-start"
+            title="你好!"
+            :width="200"
+            trigger="hover"
+            content="我是匯出，請點我。"
+          >
+            <template #reference>
+                <el-button type="success" circle icon="el-icon-download" size="medium"></el-button>
+            </template>
+          </el-popover>
+    </div>
   </div>
 </template>
 
@@ -100,6 +120,10 @@ export default {
   setup () {
     /** 查詢選單 */
     const demandSelect = reactive([
+      {
+        label: '請選擇',
+        value: 0
+      },
       {
         label: '姓名',
         value: 1
@@ -118,7 +142,7 @@ export default {
     /** 確認登入(帳號) */
     const checkAccount = ref('')
     /** 日期 */
-    const dateRange = ref('')
+    const dateRange = ref(null)
     /** 體溫 */
     const temperature = ref('1')
     /** 查詢資料 */
@@ -132,7 +156,7 @@ export default {
         OrderString: 'name'
       },
       SearchModel: {
-        SearchType: 1,
+        SearchType: 0,
         SearchValue: '',
         StartDate: Date,
         EndDate: Date,
@@ -161,13 +185,24 @@ export default {
     },
     /** 資料篩選送出 */
     sendData () {
-      console.log(this.filterData, parseInt(this.temperature, 10), this.filterData.SearchModel.TempType)
+      console.log(this.filterData, this.dateRange)
     },
     /** 確認登入 */
     checkLogin () {
       this.checkAccount = sessionStorage.getItem('Account')
       if (this.okAccount.findIndex(account => account === this.checkAccount) === -1) {
         this.$router.push('/login')
+      } else {
+        fetch('http://54.150.124.230:38088/Whitley/Home', {
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(this.filterData),
+          method: 'POST'
+        }).then(res => res.json())
+          .then(data => {
+            console.log(data)
+          })
       }
     },
     /** 登出 */
@@ -234,10 +269,32 @@ label {
       color: #409EFF;
     }
   }
+  p {
+    text-align: right;
+    font-size: 13px;
+    margin-top: 0;
+  }
+}
+
+.btnarea {
+  position: fixed;
+  bottom: 10%;
+  right: 1%;
+  .el-button--medium.is-circle {
+    width: 50px;
+    height: 50px;
+  }
+  ::v-deep i {
+    font-size: 20px;
+  }
+}
+
+.temperaturearea {
+  justify-content: space-between;
+  align-items: baseline;
 }
 
 .pagination {
   text-align: center;
-  margin-top: 1em;
 }
 </style>

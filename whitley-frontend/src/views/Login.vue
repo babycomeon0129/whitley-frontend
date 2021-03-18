@@ -43,7 +43,7 @@ export default {
           Account: this.account,
           Password: this.password
         }
-        fetch('http://localhost:52150/Whitley/Login', {
+        fetch('http://54.150.124.230:38088/Whitley/Login', {
           headers: {
             'Content-Type': 'application/json'
           },
