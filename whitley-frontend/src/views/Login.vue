@@ -9,7 +9,7 @@
         <h2>登入</h2>
         <p>請輸入您的帳戶</p>
         <el-input v-model="account" placeholder="帳號"></el-input>
-        <el-input v-model="password" placeholder="密碼" type="password"></el-input>
+        <el-input v-model="password" placeholder="密碼" type="password" @keypress.enter="sendData"></el-input>
         <el-button type="primary" @click="sendData">登入</el-button>
       </div>
     </div>
@@ -51,11 +51,11 @@ export default {
           method: 'POST'
         }).then(res => res.json())
           .then(data => {
+            // 關閉loading遮罩
             ElLoading.service().close()
             switch (data.Rtn_State) {
               case '1':
                 sessionStorage.setItem('Account', this.account)
-                // 關閉loading遮罩
                 this.$router.push('/')
                 break
               default:

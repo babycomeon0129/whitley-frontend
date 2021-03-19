@@ -52,7 +52,7 @@
                 <el-radio v-model="temperature" label="2">異常</el-radio>
              </div>
               <div>
-                <el-button type="primary" @click="sendData">送出查詢</el-button>
+                <el-button type="primary" @click="checkData(1, 'InsertDate Desc')">送出查詢</el-button>
               </div>
             </div>
           </div>
@@ -66,20 +66,24 @@
         <table>
             <thead>
                 <tr>
-                    <th>日期 & 時間 <i class="el-icon-caret-bottom"></i></th>
+                    <th>日期 & 時間
+                       <i class="el-icon-caret-bottom" @click="checkData(1, 'InsertDate')" :class="{'d-none': filterData.Model_BasePage.OrderString.indexOf('Desc') === -1}"></i>
+                       <i class="el-icon-caret-top" @click="checkData(1, 'InsertDate Desc')" :class="{'d-none': filterData.Model_BasePage.OrderString.indexOf('Desc') !== -1}"></i></th>
                     <th>姓名</th>
-                    <th>ID</th>
+                    <th>學號</th>
                     <th>卡號</th>
-                    <th>體溫紀錄°C <i class="el-icon-caret-bottom"></i></th>
+                    <th>體溫紀錄°C
+                      <i class="el-icon-caret-bottom" @click="checkData(1, 'Temperature Desc')" :class="{'d-none': filterData.Model_BasePage.OrderString.indexOf('Desc') !== -1}"></i>
+                      <i class="el-icon-caret-top" @click="checkData(1, 'Temperature')" :class="{'d-none': filterData.Model_BasePage.OrderString.indexOf('Desc') === -1}"></i></th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>The table body</td>
-                    <td>with two columns</td>
-                    <td>with two columns</td>
-                    <td>with two columns</td>
-                    <td>with two columns</td>
+                <tr v-for="(item, index) in getData" :key="index">
+                    <td>{{item.InsertDate}}</td>
+                    <td>{{item.Name}}</td>
+                    <td>{{item.ID}}</td>
+                    <td>{{item.Student_CardNo}}</td>
+                    <td :class="{'font-danger': item.Temperature > 37.5}">{{item.Temperature}}</td>
                 </tr>
             </tbody>
         </table>
@@ -89,8 +93,9 @@
     <div class="pagination">
       <div class="container">
         <el-pagination
-          @current-change="checkPage($event)"
+          @current-change="checkData($event, 'InsertDate Desc')"
           layout="prev, pager, next"
+          :page-size="25"
           :total="dataTatal">
         </el-pagination>
       </div>
@@ -114,6 +119,7 @@
 <script>
 // @ is an alias to /src
 import { computed, reactive, ref } from 'vue'
+import { ElLoading } from 'element-plus'
 
 export default {
   name: 'Home',
@@ -129,7 +135,7 @@ export default {
         value: 1
       },
       {
-        label: 'ID',
+        label: '學號',
         value: 2
       },
       {
@@ -145,15 +151,20 @@ export default {
     const dateRange = ref(null)
     /** 體溫 */
     const temperature = ref('1')
+    /** 日期排序 */
+    const sortDate = ref(true)
+    /** 體溫排序 */
+    const sortTemp = ref(true)
     /** 查詢資料 */
-    const getData = reactive('')
+    const getData = ref('')
     /** 資料總筆數 */
     const dataTatal = ref(50)
     /** 篩選資料條件 */
-    const filterData = reactive({
+    const filterData = ref({
       Model_BasePage: {
         Model_Page: 1,
-        OrderString: 'name'
+        /** 格式:  InsertDate Desc , InsertDate: 日期 Temperature: 體溫  Desc: 降冪 */
+        OrderString: 'InsertDate Desc'
       },
       SearchModel: {
         SearchType: 0,
@@ -167,6 +178,8 @@ export default {
     return {
       okAccount,
       checkAccount,
+      sortDate,
+      sortTemp,
       filterData,
       demandSelect,
       dateRange,
@@ -176,24 +189,27 @@ export default {
     }
   },
   created () {
-    this.checkLogin()
+    this.checkData(1, 'InsertDate Desc')
   },
   methods: {
-    checkPage (page) {
-      console.log(page)
-      this.filterData.Model_BasePage.Model_Page = page
-    },
-    /** 資料篩選送出 */
-    sendData () {
-      console.log(this.filterData, this.dateRange)
-    },
-    /** 確認登入 */
-    checkLogin () {
+    /** 確認資料
+     * @param page 頁數
+     * @param sort 格式:  InsertDate Desc , InsertDate: 日期 Temperature: 體溫  Desc: 降冪
+     */
+    checkData (page, sort) {
       this.checkAccount = sessionStorage.getItem('Account')
       if (this.okAccount.findIndex(account => account === this.checkAccount) === -1) {
         this.$router.push('/login')
       } else {
-        fetch('http://54.150.124.230:38088/Whitley/Home', {
+        // 開啟loading遮罩
+        ElLoading.service({ fullscreen: true })
+        this.filterData.Model_BasePage.Model_Page = page
+        this.filterData.Model_BasePage.OrderString = sort
+        if (this.dateRange !== null) {
+          this.filterData.SearchModel.StartDate = new Date(this.dateRange[0].getTime() - this.dateRange[0].getTimezoneOffset() * 60 * 1000)
+          this.filterData.SearchModel.EndDate = new Date(this.dateRange[1].getTime() - this.dateRange[1].getTimezoneOffset() * 60 * 1000)
+        }
+        fetch('http://localhost:52150/Whitley/Home', {
           headers: {
             'Content-Type': 'application/json'
           },
@@ -201,7 +217,15 @@ export default {
           method: 'POST'
         }).then(res => res.json())
           .then(data => {
-            console.log(data)
+            // 關閉loading遮罩
+            ElLoading.service().close()
+            this.getData = data.List_TemperatureLog
+            this.dataTatal = data.Model_TotalItem
+          })
+          .catch(error => {
+            // 關閉loading遮罩
+            ElLoading.service().close()
+            console.error('Error:', error)
           })
       }
     },
@@ -260,6 +284,7 @@ label {
     font-size:  14px;
     th {
       padding: 1em 0;
+      width: 20%;
     }
   }
   i {
@@ -296,5 +321,9 @@ label {
 
 .pagination {
   text-align: center;
+}
+
+.font-danger {
+  color:#F56C6C ;
 }
 </style>
