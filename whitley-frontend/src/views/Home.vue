@@ -14,6 +14,7 @@
             <p>查詢項目</p>
             <el-select v-model="filterData.SearchModel.SearchType" placeholder="請選擇" class="sel">
               <el-option
+                @click="filterData.SearchModel.SearchValue = ''"
                 v-for="(item, index) in demandSelect"
                 :key="index"
                 :label="item.label"
@@ -26,9 +27,20 @@
           <div class="col-6 flexfrm flex-container">
             <p>查詢內容</p>
             <el-input
+              v-if="filterData.SearchModel.SearchType !== 4"
               v-model="filterData.SearchModel.SearchValue"
               placeholder="請輸入查詢內容"
             ></el-input>
+              <el-select
+                v-if="filterData.SearchModel.SearchType === 4"
+                v-model="filterData.SearchModel.SearchValue" filterable placeholder="請選擇">
+                <el-option
+                  v-for="(sc, index) in studentClass"
+                  :key="'sc' + index"
+                  :label="sc"
+                  :value="sc">
+                </el-option>
+              </el-select>
           </div>
         </div>
         <div class="row">
@@ -69,6 +81,7 @@
                     <th>日期 & 時間
                        <i class="el-icon-caret-bottom" @click="checkData(1, 'InsertDate')" :class="{'d-none': filterData.Model_BasePage.OrderString.indexOf('Desc') === -1}"></i>
                        <i class="el-icon-caret-top" @click="checkData(1, 'InsertDate Desc')" :class="{'d-none': filterData.Model_BasePage.OrderString.indexOf('Desc') !== -1}"></i></th>
+                    <th>班級</th>
                     <th>姓名</th>
                     <th>學號</th>
                     <th>卡號</th>
@@ -80,9 +93,10 @@
             <tbody>
                 <tr v-for="(item, index) in getData" :key="index">
                     <td>{{item.InsertDate}}</td>
+                    <td>{{item.Class}}</td>
                     <td>{{item.Name}}</td>
                     <td>{{item.ID}}</td>
-                    <td>{{item.Student_CardNo}}</td>
+                    <td>{{item.OutwardNo}}</td>
                     <td :class="{'font-danger': item.Temperature > 37.5}">{{item.Temperature}}</td>
                 </tr>
             </tbody>
@@ -103,13 +117,13 @@
     <div class="btnarea">
           <el-popover
             placement="top-start"
-            title="你好!"
+            title="這是匯出按鈕"
             :width="200"
             trigger="hover"
-            content="我是匯出，請點我。"
+            content="如果名單需要篩選，請選擇篩尋條件後點選『送出查詢』之後再點匯出"
           >
             <template #reference>
-                <el-button type="success" circle icon="el-icon-download" size="medium"></el-button>
+                <el-button type="success" circle icon="el-icon-download" @click="exportCsv"></el-button>
             </template>
           </el-popover>
     </div>
@@ -131,6 +145,10 @@ export default {
         value: 0
       },
       {
+        label: '班級',
+        value: 4
+      },
+      {
         label: '姓名',
         value: 1
       },
@@ -147,6 +165,8 @@ export default {
     const okAccount = reactive(['xingan.demo01', 'xingan.demo02', 'xingan.demo03'])
     /** 確認登入(帳號) */
     const checkAccount = ref('')
+    /** 學生班級 */
+    const studentClass = reactive([])
     /** 日期 */
     const dateRange = ref(null)
     /** 體溫 */
@@ -180,6 +200,7 @@ export default {
       checkAccount,
       sortDate,
       sortTemp,
+      studentClass,
       filterData,
       demandSelect,
       dateRange,
@@ -209,7 +230,7 @@ export default {
           this.filterData.SearchModel.StartDate = new Date(this.dateRange[0].getTime() - this.dateRange[0].getTimezoneOffset() * 60 * 1000)
           this.filterData.SearchModel.EndDate = new Date(this.dateRange[1].getTime() - this.dateRange[1].getTimezoneOffset() * 60 * 1000)
         }
-        fetch('http://localhost:52150/Whitley/Home', {
+        fetch('http://54.150.124.230:38088/Whitley/Home', {
           headers: {
             'Content-Type': 'application/json'
           },
@@ -221,6 +242,7 @@ export default {
             ElLoading.service().close()
             this.getData = data.List_TemperatureLog
             this.dataTatal = data.Model_TotalItem
+            this.studentClass = data.List_Class.map(data => data.Class)
           })
           .catch(error => {
             // 關閉loading遮罩
@@ -228,6 +250,19 @@ export default {
             console.error('Error:', error)
           })
       }
+    },
+    /** 匯出CSV */
+    exportCsv () {
+      fetch('http://54.150.124.230:38088/Whitley/ExportCSV', {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(this.filterData),
+        method: 'POST',
+        responseType: 'blob'
+      }).then(res => res.text())
+        .then(download => window.location.assign(`http://54.150.124.230:38088/Whitley/DownloadFile/${download}`))
+        .catch(error => console.error('Error:', error))
     },
     /** 登出 */
     logOut () {
@@ -284,7 +319,7 @@ label {
     font-size:  14px;
     th {
       padding: 1em 0;
-      width: 20%;
+      width: 16.6%;
     }
   }
   i {
