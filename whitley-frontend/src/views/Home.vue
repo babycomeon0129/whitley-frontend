@@ -64,6 +64,7 @@
                 <el-radio v-model="temperature" label="2">異常</el-radio>
              </div>
               <div>
+                <el-button type="success" @click="clearFilter()">清空查詢</el-button>
                 <el-button type="primary" @click="checkData(1, 'InsertDate Desc')">送出查詢</el-button>
               </div>
             </div>
@@ -123,7 +124,7 @@
             content="如果名單需要篩選，請選擇篩尋條件後點選『送出查詢』之後再點匯出"
           >
             <template #reference>
-                <el-button type="success" circle icon="el-icon-download" @click="exportCsv"></el-button>
+                <el-button type="warning" circle icon="el-icon-download" @click="exportCsv"></el-button>
             </template>
           </el-popover>
     </div>
@@ -161,8 +162,6 @@ export default {
         value: 3
       }
     ])
-    /** 可登入帳號 */
-    const okAccount = reactive(['xingan.demo01', 'xingan.demo02', 'xingan.demo03'])
     /** 確認登入(帳號) */
     const checkAccount = ref('')
     /** 學生班級 */
@@ -192,11 +191,13 @@ export default {
         StartDate: Date,
         EndDate: Date,
         TempType: computed(() => parseInt(temperature.value, 10))
+      },
+      Session: {
+        Account: checkAccount
       }
     })
 
     return {
-      okAccount,
       checkAccount,
       sortDate,
       sortTemp,
@@ -219,8 +220,8 @@ export default {
      */
     checkData (page, sort) {
       this.checkAccount = sessionStorage.getItem('Account')
-      if (this.okAccount.findIndex(account => account === this.checkAccount) === -1) {
-        this.$router.push('/login')
+      if (this.checkAccount === null || this.checkAccount === undefined) {
+        this.noticeAlert('請重新登入')
       } else {
         // 開啟loading遮罩
         ElLoading.service({ fullscreen: true })
@@ -240,9 +241,13 @@ export default {
           .then(data => {
             // 關閉loading遮罩
             ElLoading.service().close()
-            this.getData = data.List_TemperatureLog
-            this.dataTatal = data.Model_TotalItem
-            this.studentClass = data.List_Class.map(data => data.Class)
+            if (data.Base.Rtn_State === 9998) {
+              this.noticeAlert(data.Base.Rtn_Message)
+            } else {
+              this.getData = data.List_TemperatureLog
+              this.dataTatal = data.Model_TotalItem
+              this.studentClass = data.List_Class.map(data => data.Class)
+            }
           })
           .catch(error => {
             // 關閉loading遮罩
@@ -263,6 +268,23 @@ export default {
       }).then(res => res.text())
         .then(download => window.location.assign(`http://54.150.124.230:38088/Whitley/DownloadFile/${download}`))
         .catch(error => console.error('Error:', error))
+    },
+    /** 清空搜尋 */
+    clearFilter () {
+      this.temperature = '1'
+      this.filterData.SearchModel.SearchType = 0
+      this.filterData.SearchModel.SearchValue = ''
+      this.dateRange = null
+
+      console.log(this.filterData)
+      this.checkData(1, 'InsertDate Desc')
+    },
+    /** 登入失敗提醒 */
+    noticeAlert (noticeTxt) {
+      this.$alert(noticeTxt, '登入失敗', {
+        confirmButtonText: '確定',
+        callback: action => this.$router.push('/login')
+      })
     },
     /** 登出 */
     logOut () {
