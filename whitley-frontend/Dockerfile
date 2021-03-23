@@ -1,5 +1,7 @@
 FROM node:lts-alpine
 
+ARG TARGET_ENV
+
 # install simple http server for serving static content
 RUN npm install -g http-server
 
@@ -16,7 +18,7 @@ RUN npm install --production
 COPY . .
 
 # build app for different env
-RUN npm run build-dev
+RUN npm run build-${TARGET_ENV}
 
 EXPOSE 8080
 CMD [ "http-server", "dist" ]

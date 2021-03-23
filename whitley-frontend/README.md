@@ -22,3 +22,7 @@ npm run lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+### Build Docker image
+
+docker build --build-arg TARGET_ENV=[prod/dev] -t garychang/whitley-ui:[Tag] .
