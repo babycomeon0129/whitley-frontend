@@ -266,7 +266,7 @@ export default {
         method: 'POST',
         responseType: 'blob'
       }).then(res => res.text())
-        .then(download => window.location.assign(`http://54.150.124.230:38088/Whitley/DownloadFile/${download}`))
+        .then(download => window.location.assign(`${process.env.VUE_APP_SERVER_URL}DownloadFile/${download}`))
         .catch(error => console.error('Error:', error))
     },
     /** 清空搜尋 */
