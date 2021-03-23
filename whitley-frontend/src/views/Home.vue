@@ -231,7 +231,7 @@ export default {
           this.filterData.SearchModel.StartDate = new Date(this.dateRange[0].getTime() - this.dateRange[0].getTimezoneOffset() * 60 * 1000)
           this.filterData.SearchModel.EndDate = new Date(this.dateRange[1].getTime() - this.dateRange[1].getTimezoneOffset() * 60 * 1000)
         }
-        fetch('http://54.150.124.230:38088/Whitley/Home', {
+        fetch(`${process.env.VUE_APP_SERVER_URL}Home`, {
           headers: {
             'Content-Type': 'application/json'
           },
@@ -258,7 +258,7 @@ export default {
     },
     /** 匯出CSV */
     exportCsv () {
-      fetch('http://54.150.124.230:38088/Whitley/ExportCSV', {
+      fetch(`${process.env.VUE_APP_SERVER_URL}ExportCSV`, {
         headers: {
           'Content-Type': 'application/json'
         },

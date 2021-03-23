@@ -43,7 +43,7 @@ export default {
           Account: this.account,
           Password: this.password
         }
-        fetch('http://54.150.124.230:38088/Whitley/Login', {
+        fetch(`${process.env.VUE_APP_SERVER_URL}Login`, {
           headers: {
             'Content-Type': 'application/json'
           },
