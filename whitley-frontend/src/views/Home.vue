@@ -124,7 +124,7 @@
             content="如果名單需要篩選，請選擇篩尋條件後點選『送出查詢』之後再點匯出"
           >
             <template #reference>
-                <el-button type="warning" circle icon="el-icon-download" @click="exportCsv"></el-button>
+                <el-button type="warning" circle icon="el-icon-download" @click="exportCsv" :disabled="dataTatal === 0"></el-button>
             </template>
           </el-popover>
     </div>
