@@ -1,3 +1,4 @@
+console.log(`環境：${process.env.NODE_ENV}`)
 console.log(`配置API位置：${process.env.VUE_APP_SERVER_URL}`)
 
 module.exports = {
