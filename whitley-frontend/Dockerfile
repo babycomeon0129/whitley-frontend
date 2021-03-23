@@ -15,8 +15,8 @@ RUN npm install --production
 # copy project files and folders to the current working directory (i.e. 'app' folder)
 COPY . .
 
-# build app for production with minification
-RUN npm run build
+# build app for different env
+RUN npm run build-dev
 
 EXPOSE 8080
 CMD [ "http-server", "dist" ]
