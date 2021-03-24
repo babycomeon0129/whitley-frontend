@@ -135,10 +135,13 @@
 // @ is an alias to /src
 import { computed, reactive, ref } from 'vue'
 import { ElLoading } from 'element-plus'
+import { useRouter } from 'vue-router'
 
 export default {
   name: 'Home',
   setup () {
+    /** 初始化路由 */
+    const router = useRouter()
     /** 查詢選單 */
     const demandSelect = reactive([
       {
@@ -197,6 +200,12 @@ export default {
       }
     })
 
+    /** 登出 */
+    const logOut = () => {
+      sessionStorage.clear()
+      router.push('/login')
+    }
+
     return {
       checkAccount,
       sortDate,
@@ -207,7 +216,8 @@ export default {
       dateRange,
       temperature,
       getData,
-      dataTatal
+      dataTatal,
+      logOut
     }
   },
   created () {
@@ -287,11 +297,6 @@ export default {
         confirmButtonText: '確定',
         callback: action => this.$router.push('/login')
       })
-    },
-    /** 登出 */
-    logOut () {
-      sessionStorage.clear()
-      this.$router.push('/login')
     }
   }
 }
