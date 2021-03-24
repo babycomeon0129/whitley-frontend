@@ -200,7 +200,8 @@ export default {
         Account: checkAccount
       }
     })
-
+    /** 匯出Request */
+    const csvRequest = ref(null)
     /** 登出 */
     const logOut = () => {
       sessionStorage.clear()
@@ -213,6 +214,7 @@ export default {
       sortTemp,
       studentClass,
       filterData,
+      csvRequest,
       demandSelect,
       dateRange,
       temperature,
@@ -258,6 +260,7 @@ export default {
               this.getData = data.List_TemperatureLog
               this.dataTatal = data.Model_TotalItem
               this.studentClass = data.List_Class.map(data => data.Class)
+              this.csvRequest = JSON.parse(JSON.stringify(this.filterData))
             }
           })
           .catch(error => {
@@ -273,7 +276,7 @@ export default {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(this.filterData),
+        body: JSON.stringify(this.csvRequest),
         method: 'POST',
         responseType: 'blob'
       }).then(res => res.text())
