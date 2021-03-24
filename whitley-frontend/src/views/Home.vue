@@ -291,8 +291,6 @@ export default {
       this.dateRange = null
       this.filterData.SearchModel.StartDate = null
       this.filterData.SearchModel.EndDate = null
-
-      console.log(this.filterData)
       this.checkData(1, 'InsertDate Desc')
     },
     /** 登入失敗提醒 */
